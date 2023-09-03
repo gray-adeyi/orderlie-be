@@ -100,6 +100,6 @@ class Student(ModelMixin, Base):
     middle_name: Mapped[str] = mapped_column()
     last_name: Mapped[str] = mapped_column()
     admission_mode: Mapped[AdmissionMode] = mapped_column()
-    matriculation_number: Mapped[str | None] = mapped_column()
-    jamb_registration_number: Mapped[str | None] = mapped_column()
+    matriculation_number: Mapped[str | None] = mapped_column(nullable=True)
+    jamb_registration_number: Mapped[str | None] = mapped_column(nullable=True)
     personal_email_address: Mapped[str] = mapped_column()
