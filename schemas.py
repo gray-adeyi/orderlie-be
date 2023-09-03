@@ -1,8 +1,8 @@
 from enum import IntEnum, Enum
 from typing import Optional
-from uuid import UUID, uuid4
+from uuid import UUID
 
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, EmailStr
 
 
 class Level(IntEnum):
@@ -17,27 +17,31 @@ class Level(IntEnum):
 
 class AdmissionMode(str, Enum):
     UTME = "utme"
-    DIRECT_ENTRY = "de"
+    DIRECT_ENTRY = "direct_entry"
 
 
-class BaseClassSchema(BaseModel):
-    id: UUID = Field(default_factory=uuid4)
+class CreateClassSchema(BaseModel):
     display_name: str | None
     level: Level
     department_id: UUID
 
 
-class CreateClassSchema(BaseClassSchema):
-    ...
-
-
-class UpdateClassSchema(BaseClassSchema):
+class UpdateClassSchema(CreateClassSchema):
     governor_id: Optional[UUID]
     deputy_id: Optional[UUID]
 
 
+class CreateStudentSchema(BaseModel):
+    first_name: str
+    middle_name: str
+    last_name: str
+    admission_mode: AdmissionMode
+    matriculation_number: str | None  # TODO: validate
+    jamb_registration_number: str | None  # TODO: validate
+    personal_email_address: EmailStr
+
+
 class StudentSchema(BaseModel):
-    id: UUID = Field(default_factory=uuid4)
     class_id: UUID
     first_name: str
     middle_name: str
@@ -46,7 +50,7 @@ class StudentSchema(BaseModel):
     matriculation_number: str | None  # TODO: validate
     jamb_registration_number: str | None  # TODO: validate
     personal_email_address: EmailStr
-    school_email_address: EmailStr
+    school_email_address: EmailStr | None
 
 
 class PhoneNumberAvailability(str, Enum):
@@ -73,9 +77,10 @@ class FacultySchema(BaseModel):
     id: UUID
     name: str
     school_id: UUID
+    departments: list["DepartmentSchema"]
 
 
-class CreateFacultySchema(BaseModel):
+class CreateUpdateFacultySchema(BaseModel):
     name: str
 
 
@@ -83,6 +88,19 @@ class DepartmentSchema(BaseModel):
     id: UUID
     name: str
     faculty_id: UUID
+
+
+class CreateUpdateDepartmentSchema(BaseModel):
+    name: str
+
+
+class ClassSchema(BaseModel):
+    id: UUID
+    display_name: str | None
+    level: Level
+    department_id: UUID
+    governor_id: Optional[UUID]
+    deputy_id: Optional[UUID]
 
 
 class ResponseSchema(BaseModel):
