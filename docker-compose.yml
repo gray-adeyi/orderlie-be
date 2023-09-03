@@ -1,0 +1,21 @@
+services:
+  web:
+    build: .
+    image: orderlie-be
+    container_name: web
+    command: uvicorn main:app --host 0.0.0.0 --port 8082 --reload
+    volumes:
+      - ".:/app"
+    ports:
+      - "8082:8082"
+    depends_on:
+      - database
+
+  database:
+    image: postgres
+    container_name: db
+    ports:
+      - "5432"
+    restart: always
+    env_file:
+      - .env
