@@ -6,8 +6,13 @@ name = "pypi"
 [packages]
 fastapi = "*"
 uvicorn = "*"
+asyncpg = "*"
+alembic = "*"
+pydantic-settings = "*"
+pydantic = {extras = ["email"], version = "*"}
 
 [dev-packages]
+black = "*"
 
 [requires]
 python_version = "3.11"
