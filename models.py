@@ -86,6 +86,7 @@ class Class(ModelMixin, Base):
     display_name: Mapped[str | None] = mapped_column()
     level: Mapped[Level] = mapped_column()
     department_id: Mapped[UUID] = mapped_column(ForeignKey("departments.id"))
+    department: Mapped[Department] = relationship()
     governor_id: Mapped[UUID | None] = mapped_column()
     deputy_id: Mapped[UUID | None] = mapped_column()
     students: Mapped[list["Student"]] = relationship()
