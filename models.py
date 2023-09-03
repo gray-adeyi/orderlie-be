@@ -1,5 +1,5 @@
 import uuid
-from typing import cast
+from typing import cast, TypeVar
 from uuid import UUID
 
 from sqlalchemy import ForeignKey, select, delete
@@ -13,6 +13,8 @@ from sqlalchemy.orm import (
 
 from schemas import Level, AdmissionMode
 
+M = TypeVar("M")
+
 
 class Base(AsyncAttrs, DeclarativeBase):
     ...
@@ -21,7 +23,7 @@ class Base(AsyncAttrs, DeclarativeBase):
 class ModelMixin:
     # TODO: Implement a generic way to perform updates
     @classmethod
-    async def create(cls, db: AsyncSession, data: dict) -> Base:
+    async def create(cls, db: AsyncSession, data: dict) -> M:
         obj = cls(**data)
         db.add(obj)
         await db.commit()
@@ -29,15 +31,15 @@ class ModelMixin:
         return obj
 
     @classmethod
-    async def all(cls, db: AsyncSession) -> list[Base]:
-        objs: list[Base] = []
+    async def all(cls, db: AsyncSession) -> list[M]:
+        objs: list[M] = []
         query = select(cls)
         objs = cast(list[Base], (await db.execute(query)).scalars())
         return objs
 
     @classmethod
-    async def get_by_id(cls, db: AsyncSession, id: UUID) -> Base | None:
-        obj: Base | None = None
+    async def get_by_id(cls, db: AsyncSession, id: UUID) -> M | None:
+        obj: M | None = None
         query = select(cls).where(cls.id == id)
         obj = (await db.execute(query)).scalar_one_or_none()
         return obj
