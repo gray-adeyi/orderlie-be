@@ -14,7 +14,7 @@ from schemas import (
     ResponseSchema,
 )
 
-class_router = APIRouter(prefix="/classes", tags=["classes"])
+class_router = APIRouter(prefix="/{department_id}/classes", tags=["classes"])
 class_router.include_router(student_router)
 
 
