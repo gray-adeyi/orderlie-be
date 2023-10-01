@@ -8,6 +8,7 @@ fastapi = "*"
 uvicorn = "*"
 asyncpg = "*"
 alembic = "*"
+python-docx = "*"
 pydantic-settings = "*"
 pydantic = {extras = ["email"], version = "*"}
 
