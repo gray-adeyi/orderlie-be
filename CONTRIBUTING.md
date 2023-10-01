@@ -20,6 +20,12 @@ Spin up a docker container
 docker compose up --build -d
 ```
 
+Migrate changes to the database
+
+```bash
+docker compose exec web alembic upgrade head
+```
+
 Viola! you can visit [http://localhost:8082](http://localhost:8082)
 Happy contributing!
 
@@ -53,6 +59,12 @@ Start up the development server.
 
 ```bash
 uvicorn main:app --host 0.0.0.0 --port 8082 --reload
+```
+
+Migrate changes to the database
+
+```bash
+alembic upgrade head
 ```
 
 Viola! you can visit [http://localhost:8082](http://localhost:8082)
