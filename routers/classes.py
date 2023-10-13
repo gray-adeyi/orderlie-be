@@ -115,7 +115,7 @@ async def archive_class(class_id: UUID):
     if not class_instance:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Class not found")
 
-    # Archive the class by setting the 'archived' field to True
+    # Archive the class by setting the `archived` field to True
     class_instance.archived = True
 
     # Add the updated class instance back to the session
