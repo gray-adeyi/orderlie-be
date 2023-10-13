@@ -107,7 +107,23 @@ async def download_class_data(class_id: UUID):
 
 @class_router.post("/{class_id}/archive")
 async def archive_class(class_id: UUID):
-    ...
+    class_id: UUID,
+    db: AsyncSession = Depends(get_session_as_dependency)
+):
+    class_instance = await Class.get_by_id(db, class_id)
+
+    if not class_instance:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Class not found")
+
+    # Archive the class by setting the 'archived' field to True
+    class_instance.archived = True
+
+    # Add the updated class instance back to the session
+    db.add(class_instance)
+    # Commit the changes to the database
+    await db.commit()
+
+    return ResponseSchema(message="Class successfully archived")
 
 
 @class_router.delete("/{class_id}", status_code=status.HTTP_204_NO_CONTENT)
