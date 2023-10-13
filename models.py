@@ -90,7 +90,8 @@ class Class(ModelMixin, Base):
     governor_id: Mapped[UUID | None] = mapped_column()
     deputy_id: Mapped[UUID | None] = mapped_column()
     students: Mapped[list["Student"]] = relationship()
-
+    archived: Mapped[bool] = mapped_column(default=False)
+    
 
 class Student(ModelMixin, Base):
     __tablename__ = "students"
