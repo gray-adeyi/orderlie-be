@@ -76,29 +76,30 @@ async def get_class_students(
 
 
 @class_router.patch("/{class_id}")
-async def partial_update_class(class_id: UUID) -> ResponseSchema:
+async def partial_update_class(
     class_id: UUID,
     class_data: UpdateClassSchema,
-    db: AsyncSession = Depends(get_session_as_dependency)
-):
-    class_instance = await Class.get_by_id(db, class_id)
+    db: AsyncSession = Depends(get_session_as_dependency),
+) -> ResponseSchema:
+    class_to_update = await Class.get_by_id(db, class_id)
 
-    if not class_instance:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Class not found")
+    if not class_to_update:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Class not found"
+        )
 
-    # Update the class attributes with the provided data
-    for key, value in class_data.dict(exclude_unset=True).items():
-        setattr(class_instance, key, value)
+    for key, value in class_data.model_dump().items():
+        setattr(class_to_update, key, value)
 
-    # Add the updated class instance back to the session
-    db.add(class_instance)
-    # Commit the changes to the database
+    db.add(class_to_update)
     await db.commit()
+    await db.refresh(class_to_update)
 
     return ResponseSchema(
         message="Class successfully updated",
-        data={"class": ClassSchema(**class_instance.__dict__).model_dump()}
-)
+        data={"class": ClassSchema(**class_to_update.__dict__).model_dump()},
+    )
+
 
 @class_router.post("/{class_id}/download")
 async def download_class_data(class_id: UUID):
