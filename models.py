@@ -2,7 +2,7 @@ import uuid
 from typing import cast, TypeVar
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, select, delete
+from sqlalchemy import ForeignKey, select, delete, Boolean
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncAttrs
 from sqlalchemy.orm import (
     mapped_column,
@@ -90,7 +90,8 @@ class Class(ModelMixin, Base):
     governor_id: Mapped[UUID | None] = mapped_column()
     deputy_id: Mapped[UUID | None] = mapped_column()
     students: Mapped[list["Student"]] = relationship()
-
+    archived: Mapped[bool] = mapped_column(default=False)
+    
 
 class Student(ModelMixin, Base):
     __tablename__ = "students"
