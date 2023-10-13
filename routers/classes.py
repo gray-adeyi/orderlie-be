@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, status, HTTPException, Patch
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -90,6 +90,8 @@ async def partial_update_class(class_id: UUID) -> ResponseSchema:
     for key, value in class_data.dict(exclude_unset=True).items():
         setattr(class_instance, key, value)
 
+    # Add the updated class instance back to the session
+    db.add(class_instance)
     # Commit the changes to the database
     await db.commit()
 
