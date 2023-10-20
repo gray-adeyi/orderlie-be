@@ -129,7 +129,6 @@ async def archive_class(class_id: UUID, db: AsyncSession = Depends(get_session_a
 
     Note: This endpoint has not been implemented yet
     """
-    ...
     class_ = await Class.get_by_id(db, class_id)
 
     if not class_:
