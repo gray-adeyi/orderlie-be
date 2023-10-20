@@ -15,7 +15,7 @@ from schemas import (
     ResponseSchema,
 )
 
-class_router = APIRouter(prefix="/classes", tags=["classes"])
+class_router = APIRouter(prefix="/{department_id}/classes", tags=["classes"])
 
 
 @class_router.post("", status_code=status.HTTP_201_CREATED)
@@ -124,13 +124,30 @@ async def download_class_data(class_id: UUID, format: FileFormat):
 
 
 @class_router.post("/{class_id}/archive")
-async def archive_class(class_id: UUID):
+async def archive_class(
+    class_id: UUID, db: AsyncSession = Depends(get_session_as_dependency)
+):
     """
     This endpoint lets you archive a class. So its information is not indexed.
 
     Note: This endpoint has not been implemented yet
     """
-    ...
+    class_ = await Class.get_by_id(db, class_id)
+
+    if not class_:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Class not found"
+        )
+
+    # Archive the class by setting the `archived` field to True
+    class_.archived = True
+
+    # Add the updated class instance back to the session
+    db.add(class_)
+    # Commit the changes to the database
+    await db.commit()
+
+    return ResponseSchema(message="class successfully archived")
 
 
 @class_router.delete("/{class_id}", status_code=status.HTTP_204_NO_CONTENT)
