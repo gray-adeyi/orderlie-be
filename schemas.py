@@ -32,6 +32,7 @@ class UpdateClassSchema(CreateClassSchema):
 
 
 class CreateStudentSchema(BaseModel):
+    class_id: UUID
     first_name: str
     middle_name: str
     last_name: str
@@ -81,6 +82,7 @@ class FacultySchema(BaseModel):
 
 
 class CreateUpdateFacultySchema(BaseModel):
+    school_id: UUID
     name: str
 
 
@@ -91,6 +93,7 @@ class DepartmentSchema(BaseModel):
 
 
 class CreateUpdateDepartmentSchema(BaseModel):
+    faculty_id: UUID
     name: str
 
 

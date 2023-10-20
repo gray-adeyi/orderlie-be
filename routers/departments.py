@@ -7,25 +7,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import get_session_as_dependency
 from models import Department, Faculty
-from routers import class_router
 from schemas import DepartmentSchema, ResponseSchema, CreateUpdateDepartmentSchema
 from utils import get_one_model_obj_by_query_or_404
 
 department_router = APIRouter(prefix="/{faculty_id}/departments", tags=["departments"])
-department_router.include_router(class_router)
 
 
 @department_router.get("")
-async def get_school_faculty_departments(
-    school_id: UUID,
+async def get_departments(
     faculty_id: UUID,
     db: AsyncSession = Depends(get_session_as_dependency),
 ) -> ResponseSchema:
-    query = (
-        select(Faculty)
-        .where(Faculty.school_id == school_id)
-        .where(Faculty.id == faculty_id)
-    )
+    """This endpoint lets you retrieve all the departments a faculty has"""
+    query = select(Faculty).where(Faculty.id == faculty_id)
     faculty = cast(
         Faculty,
         (
@@ -48,17 +42,19 @@ async def get_school_faculty_departments(
     "",
     status_code=status.HTTP_201_CREATED,
 )
-async def create_school_faculty_department(
-    school_id: UUID,
-    faculty_id: UUID,
+async def create_department(
     department_data: CreateUpdateDepartmentSchema,
     db: AsyncSession = Depends(get_session_as_dependency),
 ) -> ResponseSchema:
-    query = (
-        select(Faculty)
-        .where(Faculty.school_id == school_id)
-        .where(Faculty.id == faculty_id)
-    )
+    """This endpoint lets you create a department under a faculty.
+
+    Note:
+        This endpoint is not for direct use to end users but available to Orderlie admins to manage
+        departments on the platform. This helps mitigate the creation of the
+        same department with different names.
+        This endpoint will be protected by authentication
+    """
+    query = select(Faculty).where(Faculty.id == department_data.faculty_id)
     faculty = cast(
         Faculty,
         (
@@ -67,9 +63,7 @@ async def create_school_faculty_department(
             )
         ),
     )
-    data = department_data.model_dump()
-    data["faculty_id"] = faculty.id
-    new_department = Department(**data)
+    new_department = Department(**department_data.model_dump())
     db.add(new_department)
     await db.commit()
     await db.refresh(new_department)
@@ -80,18 +74,12 @@ async def create_school_faculty_department(
 
 
 @department_router.get("/{department_id}")
-async def get_school_faculty_department(
-    school_id: UUID,
-    faculty_id: UUID,
+async def get_department(
     department_id: UUID,
     db: AsyncSession = Depends(get_session_as_dependency),
 ) -> ResponseSchema:
-    query = (
-        select(Department)
-        .where(Department.faculty_id == faculty_id)
-        .where(Department.id == department_id)
-        .where(Department.faculty.school_id == school_id)
-    )
+    """This endpoint let's you retrieve a department."""
+    query = select(Department).where(Department.id == department_id)
     department = cast(
         Department,
         (
