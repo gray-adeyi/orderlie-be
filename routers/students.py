@@ -8,7 +8,7 @@ from models import Student, Class
 from schemas import StudentSchema, ResponseSchema, CreateStudentSchema
 from utils import get_model_by_id_or_404
 
-student_router = APIRouter(prefix="/{class_id}/students", tags=["students"])
+student_router = APIRouter(prefix="/students", tags=["students"])
 
 
 @student_router.post("")
