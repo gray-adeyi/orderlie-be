@@ -1,11 +1,12 @@
-from enum import Enum
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi.responses import Response
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import get_session_as_dependency
+from extras.exporter import FileFormat, get_exporter_class, get_media_type
 from models import Class
 from schemas import (
     CreateClassSchema,
@@ -105,22 +106,21 @@ async def partial_update_class(
     )
 
 
-# TODO: move to appropriate module
-class FileFormat(str, Enum):
-    DOCUMENT = "docx"
-    EXCEL = "xlsx"
-    PDF = "pdf"
-    CSV = "csv"
-    JSON = "json"
-
-
 @class_router.post("/{class_id}/download")
-async def download_class_data(class_id: UUID, format: FileFormat):
+async def download_class_data(
+    class_id: UUID,
+    format: FileFormat,
+    db: AsyncSession = Depends(get_session_as_dependency),
+):
     """This endpoint lets you download the class data in the desired format.
 
     Note: This endpoint has not been implemented yet
     """
-    ...
+    class_: Class = await Class.get_by_id(db, class_id)
+    data = class_.get_export_data()
+    exporter = get_exporter_class(format)()
+    exporter.load_data(data)
+    return Response(exporter.export(), media_type=get_media_type(format))
 
 
 @class_router.post("/{class_id}/archive")

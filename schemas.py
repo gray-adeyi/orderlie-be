@@ -43,15 +43,16 @@ class CreateStudentSchema(BaseModel):
 
 
 class StudentSchema(BaseModel):
+    id: UUID
     class_id: UUID
     first_name: str
     middle_name: str
     last_name: str
     admission_mode: AdmissionMode
-    matriculation_number: str | None  # TODO: validate
-    jamb_registration_number: str | None  # TODO: validate
+    matriculation_number: str | None = None  # TODO: validate
+    jamb_registration_number: str | None = None  # TODO: validate
     personal_email_address: EmailStr
-    school_email_address: EmailStr | None
+    school_email_address: EmailStr | None = None
 
 
 class PhoneNumberAvailability(str, Enum):

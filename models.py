@@ -2,7 +2,7 @@ import uuid
 from typing import cast, TypeVar
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, select, delete, Boolean
+from sqlalchemy import ForeignKey, select, delete
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncAttrs
 from sqlalchemy.orm import (
     mapped_column,
@@ -11,6 +11,7 @@ from sqlalchemy.orm import (
     DeclarativeBase,
 )
 
+from extras.exporter import ExportData
 from schemas import Level, AdmissionMode
 
 M = TypeVar("M")
@@ -91,7 +92,40 @@ class Class(ModelMixin, Base):
     deputy_id: Mapped[UUID | None] = mapped_column()
     students: Mapped[list["Student"]] = relationship()
     archived: Mapped[bool] = mapped_column(default=False)
-    
+
+    def get_export_data(self) -> ExportData:
+        rows = [
+            (
+                student.fist_name,
+                student.middle_name,
+                student.last_name,
+                student.admission_mode,
+                student.matriculation_numer,
+                student.jamb_registration_number,
+                student.personal_email_address,
+            )
+            for student in self.students
+        ]
+        return ExportData(
+            headers=(
+                "First Name",
+                "Middle Name",
+                "Last Name",
+                "Admission Mode",
+                "Matriculation Number",
+                "JAMB Registration Number",
+                "Personal Email Address",
+            ),
+            rows=rows,
+            metadata={
+                "Display Name": self.display_name,
+                "Level": self.level,
+                "Department": self.department.name,
+                "Faculty": self.department.faculty.name,
+                "School": self.department.faculty.school.name,
+            },
+        )
+
 
 class Student(ModelMixin, Base):
     __tablename__ = "students"
