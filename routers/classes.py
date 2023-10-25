@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, status, HTTPException
-from fastapi.responses import Response
+from fastapi.responses import StreamingResponse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,7 +16,7 @@ from schemas import (
     ResponseSchema,
 )
 
-class_router = APIRouter(prefix="/{department_id}/classes", tags=["classes"])
+class_router = APIRouter(prefix="/classes", tags=["classes"])
 
 
 @class_router.post("", status_code=status.HTTP_201_CREATED)
@@ -106,10 +106,10 @@ async def partial_update_class(
     )
 
 
-@class_router.post("/{class_id}/download")
+@class_router.get("/{class_id}/download")
 async def download_class_data(
     class_id: UUID,
-    format: FileFormat,
+    format: FileFormat = FileFormat.DOCUMENT,
     db: AsyncSession = Depends(get_session_as_dependency),
 ):
     """This endpoint lets you download the class data in the desired format.
@@ -117,10 +117,10 @@ async def download_class_data(
     Note: This endpoint has not been implemented yet
     """
     class_: Class = await Class.get_by_id(db, class_id)
-    data = class_.get_export_data()
-    exporter = get_exporter_class(format)()
+    data = await class_.get_export_data()
+    exporter = get_exporter_class(format)
     exporter.load_data(data)
-    return Response(exporter.export(), media_type=get_media_type(format))
+    return StreamingResponse(exporter.export(), media_type=get_media_type(format))
 
 
 @class_router.post("/{class_id}/archive")

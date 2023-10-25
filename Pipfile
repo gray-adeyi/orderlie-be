@@ -12,6 +12,7 @@ python-docx = "*"
 pydantic-settings = "*"
 pydantic = {extras = ["email"], version = "*"}
 gunicorn = "*"
+openpyxl = "*"
 
 [dev-packages]
 black = "*"

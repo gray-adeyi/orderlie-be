@@ -93,18 +93,18 @@ class Class(ModelMixin, Base):
     students: Mapped[list["Student"]] = relationship()
     archived: Mapped[bool] = mapped_column(default=False)
 
-    def get_export_data(self) -> ExportData:
+    async def get_export_data(self) -> ExportData:
         rows = [
             (
-                student.fist_name,
+                student.first_name,
                 student.middle_name,
                 student.last_name,
                 student.admission_mode,
-                student.matriculation_numer,
+                student.matriculation_number,
                 student.jamb_registration_number,
                 student.personal_email_address,
             )
-            for student in self.students
+            for student in await self.awaitable_attrs.students
         ]
         return ExportData(
             headers=(
@@ -120,9 +120,19 @@ class Class(ModelMixin, Base):
             metadata={
                 "Display Name": self.display_name,
                 "Level": self.level,
-                "Department": self.department.name,
-                "Faculty": self.department.faculty.name,
-                "School": self.department.faculty.school.name,
+                "Department": (await self.awaitable_attrs.department).name,
+                "Faculty": (
+                    await (
+                        await self.awaitable_attrs.department
+                    ).awaitable_attrs.faculty
+                ).name,
+                "School": (
+                    await (
+                        await (
+                            await self.awaitable_attrs.department
+                        ).awaitable_attrs.faculty
+                    ).awaitable_attrs.school
+                ).name,
             },
         )
 
